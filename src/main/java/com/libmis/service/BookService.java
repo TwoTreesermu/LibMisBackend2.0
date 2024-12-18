@@ -9,4 +9,5 @@ import com.libmis.entity.Book;
  */
 public interface BookService extends IService<Book> {
     // 如果有其他的需求，可以在该接口声明方法，然后在对应的实现类进行实现
+
 }
