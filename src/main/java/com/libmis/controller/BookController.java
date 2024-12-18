@@ -123,17 +123,17 @@ public class BookController {
      * @param pageSize 每页的图书信息数
      * @return 对应页的图书信息
      */
-    @GetMapping("booksByPage")
-    public Result<?> booksListByPage(@RequestParam(defaultValue = "1") Integer page,
-                                     @RequestParam(defaultValue = "5") Integer pageSize)
-    {
+    @GetMapping("/booksByPage")
+    public Result<?> booksListByPage(@RequestParam(value = "page", defaultValue = "1") Integer page,
+                                     @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize) {
+        // *排序的条件还没有加入
+        System.out.println(page);
+        System.out.println(pageSize);
         // *排序的条件还没有加入
         List<Book> booksList = bookService.list();
-        int pages = (int) booksList.size()/ pageSize;
         // 返回第pageNo页的数据，为Result
-        // 假如为第2页，每页10个数据，就是第11到第20条数据
-        // pageSize* (pageNo- 1), pageNo*pageSize, [10, 20)
-        List<Book> newList = booksList.subList(pageSize* (page- 1), page*pageSize);
+        List<Book> newList = booksList.subList(pageSize * (page - 1), page * pageSize);
+        System.out.println(newList);
         return Result.success(newList);
     }
 
