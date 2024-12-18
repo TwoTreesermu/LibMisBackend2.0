@@ -127,9 +127,14 @@ public class BookController {
     public Result<?> booksListByPage(@RequestParam(defaultValue = "1") Integer page,
                                      @RequestParam(defaultValue = "5") Integer pageSize)
     {
-        // todo
-
-        return null;
+        // *排序的条件还没有加入
+        List<Book> booksList = bookService.list();
+        int pages = (int) booksList.size()/ pageSize;
+        // 返回第pageNo页的数据，为Result
+        // 假如为第2页，每页10个数据，就是第11到第20条数据
+        // pageSize* (pageNo- 1), pageNo*pageSize, [10, 20)
+        List<Book> newList = booksList.subList(pageSize* (page- 1), page*pageSize);
+        return Result.success(newList);
     }
 
 }
