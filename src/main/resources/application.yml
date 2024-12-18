@@ -3,9 +3,10 @@ server:
 spring:
   datasource:  # 数据源配置
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/libmisdb?useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://localhost:3306/libmisdb?characterEncoding=utf8&useSSL=false
     username: root
-    password:
+    password: 985211
 mybatis-plus:
+  mapper-locations: "classpath:mapper/**/*.xml"
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 输出sql相关的日志
