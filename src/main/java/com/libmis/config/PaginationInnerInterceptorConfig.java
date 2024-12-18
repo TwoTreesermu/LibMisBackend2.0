@@ -18,12 +18,7 @@ public class PaginationInnerInterceptorConfig {
         // 1. 初始化核心插件，总的拦截器
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 2. 添加分页插件
-        PaginationInnerInterceptor pageInterceptor = new PaginationInnerInterceptor(DbType.MYSQL);
-        pageInterceptor.setOverflow(true);
-        pageInterceptor.setMaxLimit(1000L);
-
-
-
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
 
         return interceptor;
     }
