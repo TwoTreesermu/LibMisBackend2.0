@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -19,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/testUrl") // 具体url待定
+@RequestMapping("/books") // 具体url待定
 public class BookController {
 
     @Autowired
@@ -27,21 +25,25 @@ public class BookController {
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
-
-    /**
-     * 查询所有图书信息(没有考虑分页查询)
-     * @return 所有图书信息，封账在Result 的 data 中
-     */
-    @GetMapping("/booksList")
-    public Result<?> booksList() {
-        List<Book> list = bookService.list();
-        log.info("booksList ={}", list);
-        return Result.success(list);
-//        return Result.success(null);
-    }
     @GetMapping("/testTxt")
     public Result<?> testTxt() {
         return Result.success("testInfo by ywqtttu.");
+    }
+
+    /**
+     * 查询所有图书信息(没有考虑分页查询)
+     * @return 所有图书信息，封装在Result 的 data 中
+     */
+    @GetMapping("/booksList")
+    public Result<?> listBooks() {
+        try{
+        List<Book> booksList = bookService.list();
+        log.info("booksList ={}", booksList);
+        return Result.success(booksList);
+        } catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -51,10 +53,13 @@ public class BookController {
      */
     @PutMapping("/update")
     public Result update(@RequestBody Book book) {
-
-        //todo
-
+        try{
+        bookService.saveOrUpdate(book); // 假如没有就新建一个
         return Result.success();
+        } catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -64,10 +69,14 @@ public class BookController {
      */
     @PostMapping("/save")
     public Result save(@RequestBody Book book) {
-
         // todo
-
+        try{
+        bookService.save(book);
         return Result.success();
+        } catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -76,9 +85,19 @@ public class BookController {
      * @return  一个不带数据的 Result,
      */
     @DeleteMapping("/del/{bookId}")
-    public Result del(@PathVariable Integer bookId) {
-        // todo
-        return Result.success();
+    public Result del(@PathVariable int bookId) {
+        // 联表删除的问题
+        // *已解决* id不存在时不报错的问题
+        try {
+            if (bookService.removeById(bookId)){
+                return Result.success();
+            }else{
+                return Result.error("501", "哈麻皮你输的bookId不对。");
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -88,12 +107,17 @@ public class BookController {
      */
     @GetMapping("/find{bookId}")
     public Result find(@PathVariable Integer bookId) {
-
+        try{
         Book book = bookService.getById(bookId);
         return Result.success(book);
+        } catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
+     * 未实现。
      * 分页查询显示图书信息
      * @param page 当前页数
      * @param pageSize 每页的图书信息数
@@ -101,7 +125,8 @@ public class BookController {
      */
     @GetMapping("booksByPage")
     public Result<?> booksListByPage(@RequestParam(defaultValue = "1") Integer page,
-                                     @RequestParam(defaultValue = "5") Integer pageSize) {
+                                     @RequestParam(defaultValue = "5") Integer pageSize)
+    {
         // todo
 
         return null;
