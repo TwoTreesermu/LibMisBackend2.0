@@ -24,7 +24,7 @@ public class BookController {
     @GetMapping("/booksList")
     public Result<?> booksList() {
         List<Book> list = bookService.list();
-        log.info("booksList = ", list);
+        log.info("booksList ={}", list);
         return Result.success(list);
     }
 }
