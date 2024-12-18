@@ -105,7 +105,7 @@ public class BookController {
      * @param bookId 前端发来的bookId
      * @return  查询的结果, 一个book实例
      */
-    @GetMapping("/find{bookId}")
+    @GetMapping("/find/{bookId}")
     public Result find(@PathVariable Integer bookId) {
         try{
         Book book = bookService.getById(bookId);
