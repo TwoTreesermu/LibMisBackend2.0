@@ -38,7 +38,7 @@ public class BookController {
     public Result<?> listBooks() {
         try{
         List<Book> booksList = bookService.list();
-        log.info("booksList ={}", booksList);
+        // log.info("booksList ={}", booksList);
         return Result.success(booksList);
         } catch(Exception e){
             log.error(e.getMessage());
@@ -105,7 +105,7 @@ public class BookController {
      * @param bookId 前端发来的bookId
      * @return  查询的结果, 一个book实例
      */
-    @GetMapping("/find{bookId}")
+    @GetMapping("/find/{bookId}")
     public Result find(@PathVariable Integer bookId) {
         try{
         Book book = bookService.getById(bookId);
@@ -131,5 +131,25 @@ public class BookController {
 
         return null;
     }
+
+    /**
+     * 分页 + 检索条件
+     * @param pageNum  当前页数
+     * @param pageSize 每页的图书记录数
+     * @param search  搜索关键字， 按 title 来搜
+     * @return 符合搜索条件的，对应页的图书信息
+     */
+    @ResponseBody
+    @RequestMapping("/booksBySearchPage")
+    public Result<?> listBooksByConditionPage(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "5") Integer pageSize,
+            @RequestParam(defaultValue = "") String search
+    ) {
+        // todo
+        return null;
+    }
+
+
 
 }
