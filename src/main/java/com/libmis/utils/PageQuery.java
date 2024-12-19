@@ -20,7 +20,7 @@ public class PageQuery {
     private UserService userService;
 
     public Result<?> pageQuery(String type, int pageNum, int pageSize, String search) {
-        if(type.equals("Book")) {
+        if(type.equals("book")) {
             // 1. 新建query
             QueryWrapper<Book> queryWrapper = Wrappers.query();
             // 2. 条件搜索
@@ -32,7 +32,7 @@ public class PageQuery {
             System.out.println("page ={}"+ page);
             return Result.success(page);
 
-        } else if (type.equals("User")) {
+        } else if (type.equals("person")) {
             QueryWrapper<User> queryWrapper = Wrappers.query();
             // 2. 条件搜索
             if (StringUtils.hasText(search)) {
