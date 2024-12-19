@@ -58,7 +58,7 @@ public class UserController {
     public Result update(@RequestBody User user) {
         try {
             userService.saveOrUpdate(user); // 假如没有就新建一个
-            return Result.success();
+            return Result.success("更新用户数据成功喵。");
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -75,7 +75,7 @@ public class UserController {
     public Result save(@RequestBody User user) {
         try {
             userService.save(user);
-            return Result.success();
+            return Result.success("保存用户数据成功喵。");
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -94,7 +94,7 @@ public class UserController {
         // *已解决* id不存在时不报错的问题
         try {
             if (userService.removeById(userId)) {
-                return Result.success();
+                return Result.success("删除用户数据成功喵。");
             } else {
                 return Result.error("501", "哈麻皮你输的userId不对。");
             }
