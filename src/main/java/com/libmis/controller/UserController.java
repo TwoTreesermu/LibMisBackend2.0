@@ -131,7 +131,7 @@ public class UserController {
     public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("User", pageNum, pageSize, null);
+        return pageQuery.pageQuery("person", pageNum, pageSize, null);
     }
 
 
