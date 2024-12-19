@@ -2,7 +2,6 @@ package com.libmis.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.libmis.entity.Book;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**

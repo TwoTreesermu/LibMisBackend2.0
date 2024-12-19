@@ -1,16 +1,13 @@
 package com.libmis.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.libmis.entity.Book;
-import com.libmis.service.BookService;
+import com.libmis.service.UserService;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+import com.libmis.entity.User;
 import java.util.List;
 
 /**
@@ -19,14 +16,14 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/books") // 具体url待定
-public class BookController {
+@RequestMapping("/users") // 具体url待定
+public class UserController {
 
     @Autowired
-    private BookService bookService; // 注入 bookService
-
+    private UserService userService; // 注入 userService
     @Autowired
     private PageQuery pageQuery;
+    
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
     @GetMapping("/testTxt")
@@ -39,12 +36,12 @@ public class BookController {
      *
      * @return 所有图书信息，封装在Result 的 data 中
      */
-    @GetMapping("/booksList")
-    public Result<?> listBooks() {
+    @GetMapping("/usersList")
+    public Result<?> usersList() {
         try {
-            List<Book> booksList = bookService.list();
-            log.info("booksList ={}", booksList);
-            return Result.success(booksList);
+            List<User> usersList = userService.list();
+            log.info("usersList ={}", usersList);
+            return Result.success(usersList);
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -54,13 +51,13 @@ public class BookController {
     /**
      * 更新图书信息
      *
-     * @param book 前端发送来的 book 实例
+     * @param user 前端发送来的 user 实例
      * @return 一个不带数据的 Result
      */
     @PutMapping("/update")
-    public Result update(@RequestBody Book book) {
+    public Result update(@RequestBody User user) {
         try {
-            bookService.saveOrUpdate(book); // 假如没有就新建一个
+            userService.saveOrUpdate(user); // 假如没有就新建一个
             return Result.success();
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -71,13 +68,13 @@ public class BookController {
     /**
      * 添加图书信息
      *
-     * @param book 前端发送来的 book 实例
+     * @param user 前端发送来的 user 实例
      * @return 一个不带数据的 Result
      */
     @PostMapping("/save")
-    public Result save(@RequestBody Book book) {
+    public Result save(@RequestBody User user) {
         try {
-            bookService.save(book);
+            userService.save(user);
             return Result.success();
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -88,18 +85,18 @@ public class BookController {
     /**
      * 删除一本图书信息
      *
-     * @param bookId 前端发来的 bookId
+     * @param userId 前端发来的 userId
      * @return 一个不带数据的 Result,
      */
-    @DeleteMapping("/del/{bookId}")
-    public Result del(@PathVariable int bookId) {
+    @DeleteMapping("/del/{userId}")
+    public Result del(@PathVariable int userId) {
         // 联表删除的问题
         // *已解决* id不存在时不报错的问题
         try {
-            if (bookService.removeById(bookId)) {
+            if (userService.removeById(userId)) {
                 return Result.success();
             } else {
-                return Result.error("501", "哈麻皮你输的bookId不对。");
+                return Result.error("501", "哈麻皮你输的userId不对。");
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -108,15 +105,15 @@ public class BookController {
     }
 
     /**
-     * 根据bookId 查询图书信息
-     * @param bookId 前端发来的bookId
-     * @return 查询的结果, 一个book实例
+     * 根据userId 查询图书信息
+     * @param userId 前端发来的userId
+     * @return 查询的结果, 一个user实例
      */
-    @GetMapping("/find/{bookId}")
-    public Result find(@PathVariable Integer bookId) {
+    @GetMapping("/find/{userId}")
+    public Result find(@PathVariable Integer userId) {
         try {
-            Book book = bookService.getById(bookId);
-            return Result.success(book);
+            User user = userService.getById(userId);
+            return Result.success(user);
         } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -130,11 +127,11 @@ public class BookController {
      * @param pageSize 每页的图书记录数
      * @return 对应页的图书信息
      */
-    @GetMapping("/booksByPage")
-    public Result<?> bookListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
+    @GetMapping("/usersByPage")
+    public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("Book", pageNum, pageSize, null);
+        return pageQuery.pageQuery("User", pageNum, pageSize, null);
     }
 
 
@@ -146,7 +143,7 @@ public class BookController {
      * @return 对应页的图书信息
      */
     @GetMapping("/BySearchPage")
-    public Result<?> booksListByConditionPage(@RequestParam(defaultValue = "Book")String type,
+    public Result<?> usersListByConditionPage(@RequestParam(defaultValue = "User")String type,
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {

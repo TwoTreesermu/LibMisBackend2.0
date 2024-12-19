@@ -10,8 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @MapperScan("com.libmis.mapper")
 @SpringBootApplication
-public class Application {
+public class LibMisApplication {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(LibMisApplication.class, args);
     }
 }

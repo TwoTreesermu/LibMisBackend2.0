@@ -14,7 +14,7 @@ import java.util.List;
  * 测试类，用于调试代码
  */
 @SpringBootTest
-public class ApplicationTest {
+public class LibMisApplicationTest {
 
     @Resource
     private BookMapper bookMapper;
