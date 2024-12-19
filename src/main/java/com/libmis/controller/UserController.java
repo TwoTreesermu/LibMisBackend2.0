@@ -143,7 +143,7 @@ public class UserController {
      * @return 对应页的图书信息
      */
     @GetMapping("/BySearchPage")
-    public Result<?> usersListByConditionPage(@RequestParam(defaultValue = "User")String type,
+    public Result<?> usersListByConditionPage(@RequestParam(defaultValue = "person")String type,
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {

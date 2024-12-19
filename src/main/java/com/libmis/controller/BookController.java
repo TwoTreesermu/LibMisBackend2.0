@@ -146,7 +146,7 @@ public class BookController {
      * @return 对应页的图书信息
      */
     @GetMapping("/BySearchPage")
-    public Result<?> booksListByConditionPage(@RequestParam(defaultValue = "Book")String type,
+    public Result<?> booksListByConditionPage(@RequestParam(defaultValue = "book")String type,
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
