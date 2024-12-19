@@ -1,26 +1,31 @@
 package com.libmis;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
-import com.libmis.service.impl.BookServiceImpl;
 import com.libmis.utils.Result;
 import org.junit.jupiter.api.Test;
-import com.libmis.service.BookService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 @SpringBootTest
+@Configuration
 @MapperScan("com.libmis.mapper")
 public class MpMethodsTest {
     @Autowired
     BookService bookService;
+    @Autowired
+    ApplicationContext applicationContext;
 //    @Test
     // 无效测试
     public void testMpMethods() {
@@ -52,13 +57,13 @@ public class MpMethodsTest {
 //        System.out.println(page);
         // 1.2 排序条件
         page.addOrder(OrderItem.desc("bookId"));
-        log.info("checkPoint1");
+//        log.info("checkPoint1");
         // 2. 分页查询
         Page<Book> p = bookService.page(page);
-        log.info("checkPoint2");
+//        log.info("checkPoint2");
         // 3. 解析
         long total = p.getTotal();
-        log.info("checkPoint3");
+//        log.info("checkPoint3");
 
         System.out.println("total:"+total);
         int pages = (int) p.getPages();
@@ -84,9 +89,24 @@ public class MpMethodsTest {
 
     }
 
+    @Test
+    void getServiceByType() {
+        // 通过type值来获取指定的Bean（假设Bean的名称与type完全一致）
+        String type = "Book";
+        try {
+            Class<?> clazz = Class.forName(type);
+            int pageSize = 10;
+            int pageNum = 2;
+            // 1. 新建query
+            QueryWrapper<clazz> queryWrapper = Wrappers.query();
 
+            Page<Book> page = bookService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            System.out.println(page);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
-
+    }
 
 
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -11,6 +12,7 @@ import java.util.Date;
  * @author 二木
  * @date 2024-12-17 21:55
  */
+@Component
 @Data
 @TableName("book") // 实体类对应的表名
 public class Book {

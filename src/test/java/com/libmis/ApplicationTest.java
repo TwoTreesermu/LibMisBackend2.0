@@ -2,7 +2,6 @@ package com.libmis;
 
 import com.libmis.entity.Book;
 import com.libmis.mapper.BookMapper;
-import com.libmis.service.BookService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

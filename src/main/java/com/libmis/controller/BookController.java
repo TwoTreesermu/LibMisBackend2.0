@@ -1,14 +1,12 @@
 package com.libmis.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
 import com.libmis.service.BookService;
+import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +25,8 @@ public class BookController {
     @Autowired
     private BookService bookService; // 注入 bookService
 
+    @Autowired
+    private PageQuery pageQuery;
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
     @GetMapping("/testTxt")
@@ -76,7 +76,6 @@ public class BookController {
      */
     @PostMapping("/save")
     public Result save(@RequestBody Book book) {
-        // todo
         try {
             bookService.save(book);
             return Result.success();
@@ -89,7 +88,7 @@ public class BookController {
     /**
      * 删除一本图书信息
      *
-     * @param bookId 前端发来的bookId
+     * @param bookId 前端发来的 bookId
      * @return 一个不带数据的 Result,
      */
     @DeleteMapping("/del/{bookId}")
@@ -149,16 +148,11 @@ public class BookController {
      * @return 对应页的图书信息
      */
     @GetMapping("/BySearchPage")
-    public Result<?> booksListByConditionPage(@RequestParam(defaultValue = "1")Integer pageNum,
+    public Result<?> booksListByConditionPage(@RequestParam(defaultValue = "Book")String type,
+                                              @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-
-        QueryWrapper<Book> queryWrapper = Wrappers.query();
-        if (StringUtils.hasText(search)) {
-            queryWrapper.like("title", search);
-        }
-        Page<Book> page = bookService.page(new Page<>(pageNum, pageSize), queryWrapper);
-        log.info("page ={}", page);
-        return Result.success(page);
+        return pageQuery.pageQuery(type, pageNum, pageSize, search);
     }
+
 }

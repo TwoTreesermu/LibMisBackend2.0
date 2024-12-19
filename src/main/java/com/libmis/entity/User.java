@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 /**
  * @author zhiyu
  * @date 2024-12-18 11:30
  */
+@Component
 @Data
 @TableName("user")  // 实体类对应的表名
 public class User {
