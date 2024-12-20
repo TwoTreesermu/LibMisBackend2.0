@@ -39,9 +39,7 @@ public class PageQuery {
                 queryWrapper.like("title", search);
             }
             // 3. 填page
-//            System.out.println("checkPoint1");
             Page<User> page = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
-//            System.out.println("page ={}"+ page);
             return Result.success(page);
 
         }else{

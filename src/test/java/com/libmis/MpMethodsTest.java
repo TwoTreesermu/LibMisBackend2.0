@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
 import com.libmis.utils.Result;
+import com.libmis.service.BookService;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @Slf4j
@@ -26,7 +28,10 @@ public class MpMethodsTest {
     BookService bookService;
     @Autowired
     ApplicationContext applicationContext;
-//    @Test
+    @Autowired
+    Book book;
+    /*
+    @Test
     // 无效测试
     public void testMpMethods() {
         BookService bookService = new BookServiceImpl();
@@ -107,7 +112,33 @@ public class MpMethodsTest {
         }
 
     }
+*/
+    @Test
+    void getEntity(){
+        String type = "Book";
+        try{
+            Class<?> clazz = Class.forName("com.libmis.entity."+type);
+            System.out.println("Book反射类型:   "+ clazz.getClass().getName());
+            System.out.println("Book实例类型:   "+ book.getClass().getName());
+//            QueryWrapper<?> queryWrapper = Wrappers.query(clazz);
+            QueryWrapper<Book> queryWrapper = Wrappers.query();
+            Page<Book> page = bookService.page(new Page<>(2, 6), queryWrapper);
+//            System.out.println("page ={}"+ page);
+        }
+        catch (ClassNotFoundException e){
+            e.printStackTrace();
+        }
 
+//        // 1. 新建query
+//        QueryWrapper<entity> queryWrapper = Wrappers.query();
+//        // 2. 条件搜索
+//        if (StringUtils.hasText(search)) {
+//            queryWrapper.like("title", search);
+//        }
+//        // 3. 填page
+//        Page<Book> page = bookService.page(new Page<>(pageNum, pageSize), queryWrapper);
+//        System.out.println("page ={}"+ page);
+    }
 
 
 

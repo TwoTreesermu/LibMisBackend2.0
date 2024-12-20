@@ -2,13 +2,18 @@ package com.libmis.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.service.UserService;
+import com.libmis.utils.Jwt;
+import com.libmis.utils.Md5Util;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 import com.libmis.entity.User;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * @author 二木
@@ -23,7 +28,9 @@ public class UserController {
     private UserService userService; // 注入 userService
     @Autowired
     private PageQuery pageQuery;
-    
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
     @GetMapping("/testTxt")
@@ -149,5 +156,62 @@ public class UserController {
                                               @RequestParam(defaultValue = "")String search) {
         return pageQuery.pageQuery(type, pageNum, pageSize, search);
     }
+
+    @PostMapping("/register")
+    public Result register(@RequestBody User user) {
+        // 查询用户
+        String userName = user.getUserName();
+        User existUser = userService.getByUserName(userName);
+//        System.out.println(user);
+        if (existUser == null){ // 没有被占用
+            // 注册
+            System.out.println("checkPoint1");
+            System.out.println("checkPoint2");
+            userService.register(user);
+            System.out.println("checkPoint3");
+            return Result.success("注册成功了喵");
+        }else{
+            // 报错
+            return Result.error("500","用户名被占用了喵");
+        }
+
+    }
+
+    @PostMapping("/login")
+    public Result login(@RequestBody User user) {
+        // 首先查询用户
+        String userName = user.getUserName();
+        String password = user.getUserPwd();
+        User existUser = userService.getByUserName(userName);
+
+        if (existUser != null){ // 假如存在用户
+            if (userService.login(userName, password)){ // 密码正确
+                // Redis和拦截器的部分, 暂注释。
+                // 取消注释之后前端发送的请求都要带上@RequestHeader(name = "Authorization") String token
+
+                String token = Jwt.getJwt(userName, password);
+                ValueOperations<String, String> operations = redisTemplate.opsForValue();
+                operations.set("userName", userName);
+                operations.set("token", token, 3, TimeUnit.HOURS);
+                return Result.success(token); // 发放令牌
+
+                /*
+                现在的令牌是由postman手动输入的，而且是我输入给postman再输入进去的
+                加入redis之后，其实也只是补全了token增删改的功能而已
+                那么实际操作中，浏览器要如何持有并发送token呢？
+                */
+                // 加入令牌机制以后，应该要返回的是token令牌（一串长字符串）
+//                return Result.success("登录了喵");
+            } else{
+                return Result.error("500", "密码错了喵");
+            }// 登录命令
+        }else{
+            // 报错
+            return Result.error("500", "用户不存在");
+        }
+
+    }
+
+
 
 }
