@@ -1,9 +1,10 @@
 package com.libmis.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.libmis.utils.Jwt;
+import com.libmis.entity.OperationLog;
+import com.libmis.mapper.OperationLogMapper;
 import com.libmis.service.UserService;
 import com.libmis.utils.Jwt;
-import com.libmis.utils.Md5Util;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import com.libmis.entity.User;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import com.libmis.service.OperationLogService;
 
 /**
  * @author 二木
@@ -30,6 +32,10 @@ public class UserController {
     private PageQuery pageQuery;
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Autowired
+    private OperationLogService operationLogService;
+    @Autowired
+    OperationLog operationLog;
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
@@ -65,6 +71,9 @@ public class UserController {
     public Result update(@RequestBody User user) {
         try {
             userService.saveOrUpdate(user); // 假如没有就新建一个
+            // @RequestHeader(name = "Authorization") String token
+//          operationLogService.saveOperationLog(null, "update");
+            // 存log的部分暂时被注释了，因为前端还没有发送head。
             return Result.success("更新用户数据成功喵。");
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -127,7 +136,6 @@ public class UserController {
         }
     }
 
-
     /**
      * 分页显示图书信息
      * @param pageNum 当前页数
@@ -140,7 +148,6 @@ public class UserController {
                                     ) {
         return pageQuery.pageQuery("person", pageNum, pageSize, null);
     }
-
 
     /**
      *查询、检索, 分页显示图书信息
