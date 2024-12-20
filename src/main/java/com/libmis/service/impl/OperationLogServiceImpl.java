@@ -7,12 +7,10 @@ import com.libmis.mapper.OperationLogMapper;
 import com.libmis.service.OperationLogService;
 import com.libmis.utils.Jwt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import com.libmis.entity.OperationLog;
 import com.libmis.service.UserService;
 import java.util.Map;
-
+import java.util.Date;
 import static java.time.LocalDateTime.now;
 
 
@@ -20,14 +18,11 @@ import static java.time.LocalDateTime.now;
 public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, OperationLog>
         implements OperationLogService {
     @Autowired
-    private OperationLogMapper operationLogMapper;
-    @Autowired
     private UserService userService;
     @Autowired
     private OperationLog operationLog;
-    @Qualifier("operationLogService")
     @Autowired
-    private OperationLogService operationLogService;
+    private OperationLogMapper operationLogMapper;
 
     @Override
     public void saveOperationLog(String token, String operationType){
@@ -35,8 +30,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         User user = userService.getByUserName((String) userMap.get("userName"));
         operationLog.setUserId(user.getUserId());
         operationLog.setOperation(operationType);
-        operationLog.setTimestamp(now());
-        operationLogService.save(operationLog);
+        Date date = new Date();
+        operationLog.setTimestamp(date);
+        operationLogMapper.insert(operationLog);
     }
 
 }

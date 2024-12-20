@@ -22,5 +22,5 @@ public class OperationLog {
     private int logId;  // 操作日志ID
     private int userId;  // 用户ID（外键关联user表）
     private String operation;  // 操作描述
-    private LocalDateTime timestamp;  // 操作时间戳
+    private Date timestamp;  // 操作时间戳
 }

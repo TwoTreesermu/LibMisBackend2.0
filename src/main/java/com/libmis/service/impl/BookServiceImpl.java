@@ -1,11 +1,9 @@
 package com.libmis.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.libmis.entity.Book;
 import com.libmis.mapper.BookMapper;
 import com.libmis.service.BookService;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
+import com.libmis.entity.OperationLog;
 import com.libmis.entity.User;
+import com.libmis.service.OperationLogService;
 import com.libmis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,8 @@ public class PageQuery {
     private BookService bookService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private OperationLogService operationLogService;
 
     public Result<?> pageQuery(String type, int pageNum, int pageSize, String search) {
         if(type.equals("book")) {
@@ -32,7 +36,8 @@ public class PageQuery {
             System.out.println("page ={}"+ page);
             return Result.success(page);
 
-        } else if (type.equals("person")) {
+        }
+        else if (type.equals("person")) {
             QueryWrapper<User> queryWrapper = Wrappers.query();
             // 2. 条件搜索
             if (StringUtils.hasText(search)) {
@@ -42,9 +47,19 @@ public class PageQuery {
             Page<User> page = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
             return Result.success(page);
 
-        }else{
+        }
+        else if (type.equals("operationLog")) {
+            QueryWrapper<OperationLog> queryWrapper = Wrappers.query();
+            // 2. 条件搜索
+            if (StringUtils.hasText(search)) {
+                queryWrapper.like("title", search);
+            }
+            // 3. 填page
+            Page<OperationLog> page = operationLogService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            return Result.success(page);
+        }
+        else{
             return Result.error("500", "实体类型错误");
         }
-
     }
 }
