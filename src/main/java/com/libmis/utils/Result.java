@@ -1,5 +1,7 @@
 package com.libmis.utils;
 
+import org.springframework.stereotype.Component;
+
 /**
  * @author 二木
  * @date 2024-12-17 22:16

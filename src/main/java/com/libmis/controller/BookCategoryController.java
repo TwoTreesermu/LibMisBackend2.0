@@ -6,14 +6,10 @@ import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-/**
- * @author 二木
- * @date 2024-12-17 22:15
- */
+
 @Slf4j
 @RestController
 @RequestMapping("/bookCategory")

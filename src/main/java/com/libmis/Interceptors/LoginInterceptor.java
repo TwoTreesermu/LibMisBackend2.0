@@ -21,7 +21,6 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 令牌验证
         // 调用请求头得到令牌
         String token = request.getHeader("Authorization");
-
             ValueOperations<String, String> opertions = stringRedisTemplate.opsForValue();
             String redisToken = opertions.get("token");
             if (redisToken == null || !redisToken.equals(token)) {

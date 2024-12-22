@@ -2,11 +2,14 @@ package com.libmis.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
+import com.libmis.entity.BookStorage;
 import com.libmis.service.BookService;
+import com.libmis.service.BookStorageService;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +27,11 @@ public class BookController {
 
     @Autowired
     private BookService bookService; // 注入 bookService
-
     @Autowired
     private PageQuery pageQuery;
+    @Autowired
+    private BookStorageService bookStorageService;
+
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
     @GetMapping("/testTxt")
@@ -123,7 +128,6 @@ public class BookController {
         }
     }
 
-
     /**
      * 分页显示图书信息
      * @param pageNum 当前页数
@@ -136,7 +140,6 @@ public class BookController {
                                     ) {
         return pageQuery.pageQuery("book", pageNum, pageSize, null);
     }
-
 
     /**
      *查询、检索, 分页显示图书信息
@@ -152,5 +155,40 @@ public class BookController {
                                               @RequestParam(defaultValue = "")String search) {
         return pageQuery.pageQuery(type, pageNum, pageSize, search);
     }
+    // **********************************以下是画大饼时间****************************
+
+    /**
+     * 借书
+     * @param book
+     * @return
+     */
+    @PostMapping("/borrowBook")
+    public Result<?> borrowBook(@RequestBody Book book) {
+        /* 先要根据bookId查询Storage库里这个书还有没有库存
+           没有库存就报错
+           有库存
+           1. storage库里这本书的数量减1
+           2. 然后返回信息
+           所以需要bookStorageMapper链接这个表
+         */
+        if(bookService.checkBookStorage(book)){
+            return Result.success("借阅成功");
+        }
+        else{
+            return Result.error("500", "已经没有库存可以出借了喵");
+        }
+    }
+
+    /**
+     * 归还图书
+     */
+    @PostMapping("/returnBook")
+    public Result<?> returnBook(@RequestBody Book book) {
+        BookStorage bs = bookStorageService.getById(book.getBookId());
+        bs.setRealQuantity(bs.getRealQuantity() + 1);
+        bookStorageService.saveOrUpdate(bs);
+        return Result.success("还书成功了喵。");
+    }
+
 
 }

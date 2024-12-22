@@ -25,8 +25,9 @@ public class Jwt {
                 .build()
                 .verify(token)
                 .getClaim("userInfo");// 能够得到所有的载荷
-        System.out.println(jwtMap);
-        // 用户传递过来的token
+//        System.out.println(jwtMap);
+//        // 用户传递过来的token
+//        " . . "
         return jwtMap.asMap() ;
         // 如果修改了头部和载荷部分的数据，则验证失败
         // 如果秘钥改了，验证失败
