@@ -3,8 +3,10 @@ package com.libmis.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
 import com.libmis.entity.BookStorage;
+import com.libmis.entity.Comment;
 import com.libmis.service.BookService;
 import com.libmis.service.BookStorageService;
+import com.libmis.service.CommentService;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,13 +28,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/books") // 具体url待定
 public class BookController {
-
     @Autowired
     private BookService bookService; // 注入 bookService
     @Autowired
     private PageQuery pageQuery;
     @Autowired
     private BookStorageService bookStorageService;
+    @Autowired
+    private CommentService commentService;
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
@@ -138,7 +143,7 @@ public class BookController {
     public Result<?> bookListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("book", pageNum, pageSize, null);
+        return pageQuery.pageQuery("book", pageNum, pageSize, null, null);
     }
 
     /**
@@ -153,7 +158,7 @@ public class BookController {
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-        return pageQuery.pageQuery(type, pageNum, pageSize, search);
+        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
     }
     // **********************************以下是画大饼时间****************************
 
@@ -190,5 +195,32 @@ public class BookController {
         return Result.success("还书成功了喵。");
     }
 
+    /**
+     * 增加评论
+     */
+    @PostMapping("/sendComment")
+    public Result<?> sendComment(@RequestBody Comment comment) {
+        comment.setCommentDate(new Date());
+        comment.setUserId(1); // 之后从令牌获取
+        commentService.saveOrUpdate(comment);
+        return Result.success("评论发送成功了喵");
+    }
+    /**
+     * 删除评论
+     */
+    @DeleteMapping("/delComment")
+    public Result<?> del(@RequestBody Comment comment) {
+        commentService.removeById(comment.getCommentId());
+        return Result.success("评论删除成功了喵。");
+    }
 
+    /**
+     * 查看评论，这里是分页查询
+     * 理论上前端也要提供分页参数
+     * @return
+     */
+    @GetMapping("/getComment")
+    public Result<?> getComment() {
+        return pageQuery.pageQuery("comment", 1, 100, null, null);
+    }
 }

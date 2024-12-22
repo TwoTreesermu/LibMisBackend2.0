@@ -149,7 +149,7 @@ public class UserController {
     public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("person", pageNum, pageSize, null);
+        return pageQuery.pageQuery("person", pageNum, pageSize, null, null);
     }
 
     /**
@@ -164,7 +164,7 @@ public class UserController {
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-        return pageQuery.pageQuery(type, pageNum, pageSize, search);
+        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
     }
 
     @PostMapping("/register")
@@ -233,8 +233,7 @@ public class UserController {
         Map<String, Object> userMap = Jwt.verifyToken(token);
         String userName = (String) userMap.get("userName");
         int userId = userService.getByUserName(userName).getUserId();
-        String id = userId+"";
-        return pageQuery.pageQuery("borrowRecord", 1, 10, id);
+        return pageQuery.pageQuery("borrowRecord", 1, 10, "id", userId);
     }
 
     /**
@@ -314,4 +313,8 @@ public class UserController {
     /**
      * 删除公告...暂不写
      */
+
+
+
+
 }

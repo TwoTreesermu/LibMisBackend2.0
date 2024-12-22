@@ -75,7 +75,7 @@ public class OperationController {
     public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("operationLog", pageNum, pageSize, null);
+        return pageQuery.pageQuery("operationLog", pageNum, pageSize, null, null);
     }
 
     /**
@@ -90,7 +90,7 @@ public class OperationController {
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-        return pageQuery.pageQuery(type, pageNum, pageSize, search);
+        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
     }
 
 
