@@ -223,4 +223,19 @@ public class BookController {
     public Result<?> getComment() {
         return pageQuery.pageQuery("comment", 1, 100, null, null);
     }
+    /**
+     * 查询所有评论信息
+     */
+    @GetMapping("/commentList")
+    public Result<?> listComments() {
+        try {
+            List<Comment> commentList = commentService.list();
+            log.info("commentList ={}", commentList);
+            return Result.success(commentList);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
+    }
+
 }
