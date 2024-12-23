@@ -3,9 +3,11 @@ package com.libmis.controller;
 import com.libmis.entity.Book;
 import com.libmis.entity.BookStorage;
 import com.libmis.entity.Comment;
+import com.libmis.entity.ReservationRecord;
 import com.libmis.service.BookService;
 import com.libmis.service.BookStorageService;
 import com.libmis.service.CommentService;
+import com.libmis.service.ReservationRecordService;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +37,10 @@ public class BookController {
     private BookStorageService bookStorageService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private ReservationRecordService reservationRecordService;
+    @Autowired
+    private ReservationRecord reservationRecord;
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
@@ -261,6 +269,10 @@ public class BookController {
         }
     }
 
+    /**
+     * 非分页查询的查看评论
+     * @return
+     */
     @GetMapping("getComment")
     public Result<?> getComment(){
         try {
@@ -285,6 +297,69 @@ public class BookController {
             return Result.success("点赞成功了喵。");
         }
         catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
+    }
+
+    /**
+     * 预约书籍
+     * @param book
+     * @return
+     */
+    @PostMapping("/reserve")
+    public Result<?> reserve(@RequestBody Book book) {
+        // userId按理应该是来自token的，但是这里先注释掉了，因为前端还没带token
+//        Map<String, Object> userMap = Jwt.verifyToken(token);
+//        String userName = (String) userMap.get("userName");
+//        int userId = userService.getByUserName(userName).getUserId();
+        int userId = 1;
+        Date today = new Date();
+        reservationRecord.setBookId(book.getBookId());
+        reservationRecord.setUserId(userId);
+        reservationRecord.setReservationDate(today);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DAY_OF_MONTH, 7);
+        // 获取修改后的 Date
+        Date newDate = calendar.getTime();
+        reservationRecord.setExpectedAvailableDate(newDate);
+        reservationRecordService.save(reservationRecord);
+        return Result.success("预约成功。");
+    }
+
+    /**
+     * 查看预约记录
+     * @return
+     */
+    @GetMapping("/listReserve")
+    public Result<?> listReserve() {
+        try {
+            List<Book> booksList = bookService.list();
+            log.info("booksList ={}", booksList);
+            return Result.success(booksList);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
+    }
+
+    /**
+     * 删除预约记录
+     * @param reservationId
+     * @return
+     */
+    @DeleteMapping("/delReservation")
+    public Result<?> delReservation(@PathVariable int reservationId) {
+        // 联表删除的问题
+        // *已解决* id不存在时不报错的问题
+        try {
+            if (bookService.removeById(reservationId)) {
+                return Result.success("删除成功了喵。");
+            } else {
+                return Result.error("501", "哈麻皮你输的reservationId不对。");
+            }
+        } catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
         }
