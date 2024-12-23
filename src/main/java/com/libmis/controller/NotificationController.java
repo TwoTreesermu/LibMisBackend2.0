@@ -1,30 +1,30 @@
 package com.libmis.controller;
 
-import com.libmis.entity.BookCategory;
-import com.libmis.service.BookCategoryService;
+import com.libmis.entity.Notification;
+import com.libmis.service.NotificationService;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 
 @Slf4j
 @RestController
-@RequestMapping("/bookCategory")
-public class BookCategoryController {
+@RequestMapping("/notification")
+public class NotificationController {
     @Autowired
-    private BookCategoryService bookCategoryService;
+    private NotificationService notificationService;
     @Autowired
     private PageQuery pageQuery;
-
-    // 查询图书分类表
+    
+    // 查询通知表
     @GetMapping("/categoryList")
     public Result<?> categoryList() {
         try {
-            List<BookCategory> categoriesList = bookCategoryService.list();
-//            log.info("catogoriesList ={}", categoriesList);
+            List<Notification> categoriesList = notificationService.list();
             return Result.success(categoriesList);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -35,10 +35,10 @@ public class BookCategoryController {
 
     // 更新category
     @PutMapping("/update")
-    public Result<?> update(@RequestBody BookCategory bookCategory) {
+    public Result<?> update(@RequestBody Notification notification) {
         try{
-            bookCategoryService.saveOrUpdate(bookCategory);
-            return Result.success("更新图书分类成功了喵。");
+            notificationService.saveOrUpdate(notification);
+            return Result.success("更新通知成功了喵。");
         }catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -46,10 +46,10 @@ public class BookCategoryController {
     }
 
     @PostMapping("/save")
-    public Result<?> save(@RequestBody BookCategory bookCategory) {
+    public Result<?> save(@RequestBody Notification notification) {
         try{
-            bookCategoryService.save(bookCategory);
-            return Result.success("保存图书分类成功了喵。");
+            notificationService.save(notification);
+            return Result.success("保存通知成功了喵。");
         }catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -59,8 +59,8 @@ public class BookCategoryController {
     @DeleteMapping("/del/{categoryId}")
     public Result<?> del(@PathVariable int categoryId) {
         try{
-            bookCategoryService.removeById(categoryId);
-            return Result.success("删除图书分类成功了喵。");
+            notificationService.removeById(categoryId);
+            return Result.success("删除通知成功了喵。");
         }catch (Exception e) {
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -71,7 +71,7 @@ public class BookCategoryController {
     public Result<?> find(@PathVariable Integer categoryId) {
         try{
             System.out.println("checkPoint1");
-            return Result.success(bookCategoryService.getById(categoryId));
+            return Result.success(notificationService.getById(categoryId));
         }catch (Exception e) {
             System.out.println("checkPoint2");
             log.error(e.getMessage());

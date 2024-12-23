@@ -1,6 +1,5 @@
 package com.libmis.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.libmis.entity.Book;
 import com.libmis.entity.BookStorage;
 import com.libmis.entity.Comment;
@@ -11,12 +10,10 @@ import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Date;
 import java.util.List;
 
@@ -143,7 +140,12 @@ public class BookController {
     public Result<?> bookListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize
                                     ) {
-        return pageQuery.pageQuery("book", pageNum, pageSize, null, null);
+        try {
+            return pageQuery.pageQuery("book", pageNum, pageSize, null, null);
+        }catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -158,9 +160,14 @@ public class BookController {
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
+        try {
+            return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
-    // **********************************以下是画大饼时间****************************
 
     /**
      * 借书
@@ -176,11 +183,16 @@ public class BookController {
            2. 然后返回信息
            所以需要bookStorageMapper链接这个表
          */
+        try{
         if(bookService.checkBookStorage(book)){
             return Result.success("借阅成功");
         }
         else{
-            return Result.error("500", "已经没有库存可以出借了喵");
+            return Result.error("500", "已经没有库存可以出借了喵");}
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
         }
     }
 
@@ -189,10 +201,16 @@ public class BookController {
      */
     @PostMapping("/returnBook")
     public Result<?> returnBook(@RequestBody Book book) {
-        BookStorage bs = bookStorageService.getById(book.getBookId());
-        bs.setRealQuantity(bs.getRealQuantity() + 1);
-        bookStorageService.saveOrUpdate(bs);
-        return Result.success("还书成功了喵。");
+        try {
+            BookStorage bs = bookStorageService.getById(book.getBookId());
+            bs.setRealQuantity(bs.getRealQuantity() + 1);
+            bookStorageService.saveOrUpdate(bs);
+            return Result.success("还书成功了喵。");
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -200,18 +218,31 @@ public class BookController {
      */
     @PostMapping("/sendComment")
     public Result<?> sendComment(@RequestBody Comment comment) {
-        comment.setCommentDate(new Date());
-        comment.setUserId(1); // 之后从令牌获取
-        commentService.saveOrUpdate(comment);
-        return Result.success("评论发送成功了喵");
+        try {
+            comment.setCommentDate(new Date());
+            comment.setUserId(1); // 之后从令牌获取
+            commentService.saveOrUpdate(comment);
+            return Result.success("评论发送成功了喵");
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
+
     /**
      * 删除评论
      */
     @DeleteMapping("/delComment")
     public Result<?> del(@RequestBody Comment comment) {
-        commentService.removeById(comment.getCommentId());
-        return Result.success("评论删除成功了喵。");
+        try {
+            commentService.removeById(comment.getCommentId());
+            return Result.success("评论删除成功了喵。");
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -221,13 +252,26 @@ public class BookController {
      */
     @GetMapping("/getCommentByPage")
     public Result<?> getCommentByPage() {
-        return pageQuery.pageQuery("comment", 1, 100, null, null);
+        try {
+            return pageQuery.pageQuery("comment", 1, 100, null, null);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     @GetMapping("getComment")
     public Result<?> getComment(){
-        return Result.success(commentService.list());
+        try {
+            return Result.success(commentService.list());
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
+
     /**
      * 给评论点赞
      * @param comment
@@ -235,8 +279,14 @@ public class BookController {
      */
     @PostMapping("/likeComment")
     public Result<?> likeComment(@RequestBody Comment comment) {
-        comment.setLikes(comment.getLikes() + 1);
-        commentService.saveOrUpdate(comment);
-        return Result.success("点赞成功了喵。");
+        try {
+            comment.setLikes(comment.getLikes() + 1);
+            commentService.saveOrUpdate(comment);
+            return Result.success("点赞成功了喵。");
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 }

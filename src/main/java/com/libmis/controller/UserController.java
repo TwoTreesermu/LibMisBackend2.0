@@ -5,14 +5,12 @@ import com.libmis.entity.BorrowRecord;
 import com.libmis.service.BookService;
 import com.libmis.service.BorrowRecordService;
 import com.libmis.utils.*;
-import com.libmis.entity.OperationLog;
 import com.libmis.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 import com.libmis.entity.User;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -36,20 +34,11 @@ public class UserController {
     @Autowired
     private OperationLogService operationLogService;
     @Autowired
-    OperationLog operationLog;
-    @Autowired
     BorrowRecordService borrowRecordService;
     @Autowired
     private User user;
     @Autowired
     private BookService bookService;
-
-    // 前端以json格式发送数据，需要加@RequestBody
-    // 以表单形式提交，则不需要@RequestBody
-    @GetMapping("/testTxt")
-    public Result<?> testTxt() {
-        return Result.success("testInfo by ywqtttu.");
-    }
 
     /**
      * 查询所有用户信息(没有考虑分页查询)
@@ -60,7 +49,6 @@ public class UserController {
     public Result<?> usersList() {
         try {
             List<User> usersList = userService.list();
-            log.info("usersList ={}", usersList);
             return Result.success(usersList);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -77,10 +65,10 @@ public class UserController {
     @PutMapping("/update")
     public Result update(@RequestBody User user) {
         try {
-            userService.saveOrUpdate(user); // 假如没有就新建一个
-            // @RequestHeader(name = "Authorization") String token
-//          operationLogService.saveOperationLog(null, "update");
+            userService.saveOrUpdate(user);
             // 存log的部分暂时被注释了，因为前端还没有发送head。
+//            String operate = "saveOrUpdate "+ user.getUserId();
+//            operationLogService.saveOperationLog(token, operate);
             return Result.success("更新用户数据成功喵。");
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -98,6 +86,8 @@ public class UserController {
     public Result save(@RequestBody User user) {
         try {
             userService.save(user);
+//            String operate = "save "+ user.getUserId();
+//            operationLogService.saveOperationLog(token, operate);
             return Result.success("保存用户数据成功喵。");
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -113,10 +103,10 @@ public class UserController {
      */
     @DeleteMapping("/del/{userId}")
     public Result del(@PathVariable int userId) {
-        // *已解决* 联表删除的问题
-        // *已解决* id不存在时不报错的问题
         try {
             if (userService.removeById(userId)) {
+//                String operate = "delete "+ userId;
+//                operationLogService.saveOperationLog(token, operate);
                 return Result.success("删除用户数据成功喵。");
             } else {
                 return Result.error("501", "哈麻皮你输的userId不对。");
@@ -151,9 +141,13 @@ public class UserController {
      */
     @GetMapping("/usersByPage")
     public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
-                                    @RequestParam(defaultValue = "5")Integer pageSize
-                                    ) {
-        return pageQuery.pageQuery("person", pageNum, pageSize, null, null);
+                                    @RequestParam(defaultValue = "5")Integer pageSize) {
+        try{
+        return pageQuery.pageQuery("person", pageNum, pageSize, null, null);}
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -168,76 +162,84 @@ public class UserController {
                                               @RequestParam(defaultValue = "1")Integer pageNum,
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
-        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);
+        try{
+        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);}
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     @PostMapping("/register")
     public Result register(@RequestBody User user) {
+        try{
         // 查询用户
         String userName = user.getUserName();
         User existUser = userService.getByUserName(userName);
-//        System.out.println(user);
         if (existUser == null){ // 没有被占用
             // 注册
-            System.out.println("checkPoint1");
-            System.out.println("checkPoint2");
             userService.register(user);
-            System.out.println("checkPoint3");
+//            String operate = "register "+ userName;
+//            operationLogService.saveOperationLog(token, operate);
             return Result.success("注册成功了喵");
         }else{
             // 报错
             return Result.error("500","用户名被占用了喵");
+        }}
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
         }
 
     }
 
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
-        // 首先查询用户
-        String userName = user.getUserName();
-        String password = user.getUserPwd();
-        User existUser = userService.getByUserName(userName);
-
-        if (existUser != null){ // 假如存在用户
-            if (userService.login(userName, password)){ // 密码正确
-                // Redis和拦截器的部分, 暂注释。
-                // 取消注释之后前端发送的请求都要带上@RequestHeader(name = "Authorization") String token
-
-                String token = Jwt.getJwt(userName, password);
-                ValueOperations<String, String> operations = redisTemplate.opsForValue();
-                operations.set("userName", userName);
-                operations.set("token", token, 3, TimeUnit.HOURS);
-                return Result.success(token); // 发放令牌
-
-                /*
-                现在的令牌是由postman手动输入的，而且是我输入给postman再输入进去的
-                加入redis之后，其实也只是补全了token增删改的功能而已
-                那么实际操作中，浏览器要如何持有并发送token呢？
-                */
-                // 加入令牌机制以后，应该要返回的是token令牌（一串长字符串）
-//                return Result.success("登录了喵");
-            } else{
-                return Result.error("500", "密码错了喵");
-            }// 登录命令
-        }else{
-            // 报错
-            return Result.error("500", "用户不存在");
+        try {
+            // 首先查询用户
+            String userName = user.getUserName();
+            String password = user.getUserPwd();
+            User existUser = userService.getByUserName(userName);
+            if (existUser != null) { // 假如存在用户
+                if (userService.login(userName, password)) { // 密码正确
+                    String token = Jwt.getJwt(userName, password);
+                    ValueOperations<String, String> operations = redisTemplate.opsForValue();
+                    operations.set("userName", userName);
+                    operations.set("token", token, 3, TimeUnit.HOURS);
+                    String operate = "login "+ userName;
+                    operationLogService.saveOperationLog(token, operate);
+                    return Result.success(token); // 发放令牌
+                } else {
+                    return Result.error("500", "密码错了喵");
+                }// 登录命令
+            } else {
+                // 报错
+                return Result.error("500", "用户不存在");
+            }
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
         }
 
     }
 
-    //****************************以下为画大饼***********************************
     /**
      * 查看自己借阅了的书籍
      * 这里用的分页查询，暂不知道要不要接收前端传过来的pageNum, pageSize
      */
     @GetMapping("/borrowRecord")
-
     public Result<?> borrowRecord(@RequestHeader("Authorization") String token) {
-        Map<String, Object> userMap = Jwt.verifyToken(token);
-        String userName = (String) userMap.get("userName");
-        int userId = userService.getByUserName(userName).getUserId();
-        return pageQuery.pageQuery("borrowRecord", 1, 10, "id", userId);
+        try {
+            Map<String, Object> userMap = Jwt.verifyToken(token);
+            String userName = (String) userMap.get("userName");
+            int userId = userService.getByUserName(userName).getUserId();
+            return pageQuery.pageQuery("borrowRecord", 1, 10, "id", userId);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -250,14 +252,22 @@ public class UserController {
      */
     @PostMapping("/borrowRecord/extendLoan")
     public Result<?> extendLoan(@RequestBody Book book) {
-        // 修改record里的时间就可以了
-        int bookId = book.getBookId();
-        BorrowRecord bookRecord = borrowRecordService.getById(bookId);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(bookRecord.getReturnDate());
-        calendar.add(Calendar.DAY_OF_MONTH, 30);
-        bookRecord.setReturnDate(calendar.getTime());
-        return Result.success("还书时间更新为："+ bookRecord.getReturnDate());
+        try {
+            // 修改record里的时间就可以了
+            int bookId = book.getBookId();
+            BorrowRecord bookRecord = borrowRecordService.getById(bookId);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(bookRecord.getReturnDate());
+            calendar.add(Calendar.DAY_OF_MONTH, 30);
+            bookRecord.setReturnDate(calendar.getTime());
+//            String operate = "extend loan "+ bookId;
+//            operationLogService.saveOperationLog(token, operate);
+            return Result.success("还书时间更新为：" + bookRecord.getReturnDate());
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
@@ -265,25 +275,30 @@ public class UserController {
      */
     @PostMapping("/logout")
     public Result<?> logout(@RequestBody User user) {
-        System.out.println("**********"+user.getUserName()+ user);
-        int userId = user.getUserId();
-        // 假如存在未归还书籍
-        BorrowRecord borrowRecord = borrowRecordService.checkReturnByUserId(userId);
-//        System.out.println("**********"+borrowRecord);
-        if (borrowRecord == null){
-            try {
-                if (userService.removeById(userId)) {
-                    return Result.success("注销成功喵。");
-                } else {
-                    return Result.error("501", "用户不存在");
+        try {
+            int userId = user.getUserId();
+            // 假如存在未归还书籍
+            BorrowRecord borrowRecord = borrowRecordService.checkReturnByUserId(userId);
+            if (borrowRecord == null) {
+                try {
+                    if (userService.removeById(userId)) {
+                        return Result.success("注销成功喵。");
+                    } else {
+                        return Result.error("501", "用户不存在");
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+//                    String operate = "logout "+ userId;
+//                    operationLogService.saveOperationLog(token, operate);
+                    return Result.error("501", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return Result.error("501", e.getMessage());
+            } else {
+                return Result.error("500", "存在借阅事务未结算，无法注销的喵。");
             }
         }
-        else{
-            return Result.error("500", "存在借阅事务未结算，无法注销的喵。");
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
         }
     }
 
@@ -293,9 +308,17 @@ public class UserController {
     @PostMapping("/resetPwd")
     // 假如前端传的只有“换了新密码”之后的user就这么写，假如是带上oldPwd和newPwd俩字符串的那就另说
     public Result<?> resetPwd(@RequestBody User user) {
-        user.setUserPwd(Md5Util.getMD5String(user.getUserPwd()));
-        userService.updateById(user);
-        return Result.success("修改密码成功了喵，请重新登录喵。");
+        try {
+            user.setUserPwd(Md5Util.getMD5String(user.getUserPwd()));
+            userService.updateById(user);
+//            String operate = "resetPwd "+ user.getUserName()+ user.getUserPwd();
+//            operationLogService.saveOperationLog(token, operate);
+            return Result.success("修改密码成功了喵，请重新登录喵。");
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
     }
 
     /**
