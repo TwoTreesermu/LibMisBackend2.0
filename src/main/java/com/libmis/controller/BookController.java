@@ -219,8 +219,24 @@ public class BookController {
      * 理论上前端也要提供分页参数
      * @return
      */
-    @GetMapping("/getComment")
-    public Result<?> getComment() {
+    @GetMapping("/getCommentByPage")
+    public Result<?> getCommentByPage() {
         return pageQuery.pageQuery("comment", 1, 100, null, null);
+    }
+
+    @GetMapping("getComment")
+    public Result<?> getComment(){
+        return Result.success(commentService.list());
+    }
+    /**
+     * 给评论点赞
+     * @param comment
+     * @return
+     */
+    @PostMapping("/likeComment")
+    public Result<?> likeComment(@RequestBody Comment comment) {
+        comment.setLikes(comment.getLikes() + 1);
+        commentService.saveOrUpdate(comment);
+        return Result.success("点赞成功了喵。");
     }
 }

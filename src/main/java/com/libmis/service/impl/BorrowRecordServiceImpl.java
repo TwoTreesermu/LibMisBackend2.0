@@ -7,6 +7,8 @@ import com.libmis.service.BorrowRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, BorrowRecord>
@@ -17,6 +19,10 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
     @Override
     public BorrowRecord checkReturnByUserId(int userId){
         return borrowRecordMapper.checkReturnByUserId(userId);
+    }
+    @Override
+    public List<Integer> getByUserId(int userId){
+        return borrowRecordMapper.getByUserId(userId);
     }
 
 }

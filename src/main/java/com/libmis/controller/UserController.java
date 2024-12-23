@@ -2,19 +2,18 @@ package com.libmis.controller;
 
 import com.libmis.entity.Book;
 import com.libmis.entity.BorrowRecord;
+import com.libmis.service.BookService;
 import com.libmis.service.BorrowRecordService;
-import com.libmis.utils.Jwt;
+import com.libmis.utils.*;
 import com.libmis.entity.OperationLog;
 import com.libmis.service.UserService;
-import com.libmis.utils.Md5Util;
-import com.libmis.utils.PageQuery;
-import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 import com.libmis.entity.User;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,11 @@ public class UserController {
     OperationLog operationLog;
     @Autowired
     BorrowRecordService borrowRecordService;
+    @Autowired
+    private User user;
+    @Autowired
+    private BookService bookService;
+
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
     @GetMapping("/testTxt")
@@ -295,12 +299,21 @@ public class UserController {
     }
 
     /**
-     * 发送评论...先不写
+     * 分析单个用户借阅偏好，不需要输入东西，只需要一个按钮联通这个接口就可以。
      */
-
-    /**
-     * 点赞评论...先不写
-     */
+    @GetMapping("/userStaticAnalysis")
+    public Result<?> userStaticAnalysis(@RequestHeader ("Authorization") String token) {
+        Map<String, Object> userMap = Jwt.verifyToken(token);
+        String userName = (String) userMap.get("userName");
+        int userId = userService.getByUserName(userName).getUserId();
+        List<Integer> bRList = borrowRecordService.getByUserId(userId);
+        List<Book> booksList = bookService.listByIds(bRList);
+        List<String> inputList = new ArrayList<>();
+        for (Book book : booksList) {
+            inputList.add("书籍标题："+ book.getTitle()+ "书籍简介："+ book.getIntroduction());
+        }
+        return QwenQuery.callWithMessage("你是一个高校图书馆管理系统的数据分析助手", inputList, "根据这个用户的借书记录，分析用户的借阅偏好，并且给出符合其偏好的借阅建议");
+    }
 
     /**
      * 发送公告...暂不写
