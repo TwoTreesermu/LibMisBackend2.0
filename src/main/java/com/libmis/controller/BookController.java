@@ -1,29 +1,24 @@
 package com.libmis.controller;
 
-import com.libmis.entity.Book;
-import com.libmis.entity.BookStorage;
-import com.libmis.entity.Comment;
-import com.libmis.entity.ReservationRecord;
-import com.libmis.service.BookService;
-import com.libmis.service.BookStorageService;
-import com.libmis.service.CommentService;
-import com.libmis.service.ReservationRecordService;
+import com.libmis.entity.*;
+import com.libmis.service.*;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
- * @author 二木
- * @date 2024-12-17 22:15
+ * @Created by 二木
+ * @Coded by Ywqtttu
  */
 @Slf4j
 @RestController
@@ -41,6 +36,13 @@ public class BookController {
     private ReservationRecordService reservationRecordService;
     @Autowired
     private ReservationRecord reservationRecord;
+    @Autowired
+    private BorrowRecordService borrowRecordService;
+    @Autowired
+    private BorrowRecord br;
+    @Qualifier("userService")
+    @Autowired
+    private UserService userService;
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
@@ -193,6 +195,20 @@ public class BookController {
          */
         try{
         if(bookService.checkBookStorage(book)){
+            br.setBookId(book.getBookId());
+//            Map<String, Object> userMap = Jwt.verifyToken(token);
+//            String userName = (String) userMap.get("userName");
+//            int userId = userService.getByUserName(userName).getUserId();
+            int userId = 1;
+            br.setUserId(userId);
+            Date today = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            calendar.add(Calendar.DATE, 30);
+            br.setBorrowDate(today);
+            br.setDueDate(calendar.getTime());
+            br.setStatus("已借出");
+            borrowRecordService.save(br);
             return Result.success("借阅成功");
         }
         else{
@@ -213,6 +229,11 @@ public class BookController {
             BookStorage bs = bookStorageService.getById(book.getBookId());
             bs.setRealQuantity(bs.getRealQuantity() + 1);
             bookStorageService.saveOrUpdate(bs);
+//            Map<String, Object> userMap = Jwt.verifyToken(token);
+//            String userName = (String) userMap.get("username");
+//            int userId = userService.getByUserName(userName).getUserId();
+            int userId = 1;
+            borrowRecordService.returnBook(userId, book.getBookId());
             return Result.success("还书成功了喵。");
         }
         catch (Exception e) {

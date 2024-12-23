@@ -12,4 +12,5 @@ public interface BorrowRecordService extends IService<BorrowRecord> {
     // 如果有其他的需求，可以在该接口声明方法，然后在对应的实现类进行实现
     BorrowRecord checkReturnByUserId(int userId);
     List<Integer> getByUserId(int userId);
+    void returnBook(int userId, int bookId);
 }

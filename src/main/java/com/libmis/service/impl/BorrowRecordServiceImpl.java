@@ -25,4 +25,8 @@ public class BorrowRecordServiceImpl extends ServiceImpl<BorrowRecordMapper, Bor
         return borrowRecordMapper.getByUserId(userId);
     }
 
+    @Override
+    public void returnBook(int userId, int bookId){
+        borrowRecordMapper.returnBook(userId, bookId);
+    }
 }
