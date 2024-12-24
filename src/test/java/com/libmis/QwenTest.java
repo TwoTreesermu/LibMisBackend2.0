@@ -68,8 +68,7 @@ public class QwenTest {
     @Test
     void userStaticAnalysis() {
         String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mbyI6eyJ1c2VyTmFtZSI6ImVseXNpYSIsInVzZXJJZCI6IjExNDUxNCJ9LCJleHAiOjE3MzQ5NDQ1MTR9.683PlUHDtS8bRXR-h1mtixY_l2olWcNAEXib99qwqH8";
-        Map<String, Object> userMap = Jwt.verifyToken(token);
-        String userName = (String) userMap.get("userName");
+        String userName = Jwt.verifyToken(token);
         int userId = userService.getByUserName(userName).getUserId();
         List<Integer> bRList = borrowRecordService.getByUserId(userId);
         System.out.println("**********"+ bRList);

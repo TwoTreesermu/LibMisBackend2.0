@@ -231,8 +231,7 @@ public class UserController {
     @GetMapping("/borrowRecord")
     public Result<?> borrowRecord(@RequestHeader("Authorization") String token) {
         try {
-            Map<String, Object> userMap = Jwt.verifyToken(token);
-            String userName = (String) userMap.get("userName");
+            String userName = Jwt.verifyToken(token);
             int userId = userService.getByUserName(userName).getUserId();
             return pageQuery.pageQuery("borrowRecord", 1, 10, "id", userId);
         }
@@ -326,8 +325,7 @@ public class UserController {
      */
     @GetMapping("/userStaticAnalysis")
     public Result<?> userStaticAnalysis(@RequestHeader ("Authorization") String token) {
-        Map<String, Object> userMap = Jwt.verifyToken(token);
-        String userName = (String) userMap.get("userName");
+        String userName = Jwt.verifyToken(token);
         int userId = userService.getByUserName(userName).getUserId();
         List<Integer> bRList = borrowRecordService.getByUserId(userId);
         List<Book> booksList = bookService.listByIds(bRList);

@@ -2,6 +2,7 @@ package com.libmis.controller;
 
 import com.libmis.entity.*;
 import com.libmis.service.*;
+import com.libmis.utils.Jwt;
 import com.libmis.utils.PageQuery;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,8 @@ public class BookController {
     private BorrowRecord br;
     @Autowired
     private UserService userService;
+    @Autowired
+    private OperationLogService operationLogService;
 
     // 前端以json格式发送数据，需要加@RequestBody
     // 以表单形式提交，则不需要@RequestBody
@@ -247,7 +250,10 @@ public class BookController {
     public Result<?> sendComment(@RequestBody Comment comment) {
         try {
             comment.setCommentDate(new Date());
-            comment.setUserId(1); // 之后从令牌获取
+//            Map<Object, String> userMap = Jwt.verifyToken(token);
+//            int userId = userService.getByUserName(userMap.get("userName")).getUserId();
+            int userId = 1;
+            comment.setUserId(userId); // 之后从令牌获取
             commentService.saveOrUpdate(comment);
             return Result.success("评论发送成功了喵");
         }
@@ -264,6 +270,7 @@ public class BookController {
     public Result<?> del(@RequestBody Comment comment) {
         try {
             commentService.removeById(comment.getCommentId());
+//            operationLogService.saveOperationLog(token, "deleteComment");
             return Result.success("评论删除成功了喵。");
         }
         catch (Exception e) {

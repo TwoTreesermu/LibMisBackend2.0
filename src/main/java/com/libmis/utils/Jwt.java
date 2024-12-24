@@ -20,7 +20,7 @@ public class Jwt {
                 .sign(Algorithm.HMAC256("SpringBootStudy"));
     }
 
-    public static Map<String, Object> verifyToken(String token) {
+    public static String verifyToken(String token) {
         Claim jwtMap= JWT.require(Algorithm.HMAC256("SpringBootStudy"))
                 .build()
                 .verify(token)
@@ -28,9 +28,11 @@ public class Jwt {
 //        System.out.println(jwtMap);
 //        // 用户传递过来的token
 //        " . . "
-        return jwtMap.asMap() ;
+        return (String) jwtMap.asMap().get("userName");
         // 如果修改了头部和载荷部分的数据，则验证失败
         // 如果秘钥改了，验证失败
         // token过期，也会失败
     }
+
+
 }

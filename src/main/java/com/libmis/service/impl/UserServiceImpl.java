@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.libmis.entity.User;
 import com.libmis.mapper.UserMapper;
 import com.libmis.service.UserService;
+import com.libmis.utils.Jwt;
 import com.libmis.utils.Md5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public void register(User user) {
         user.setUserPwd(Md5Util.getMD5String(user.getUserPwd()));
         userMapper.register(user.getUserName(), user.getUserPwd());
+    }
+
+    @Override
+    public boolean verifyRole(String token){
+        User user = userMapper.getByUserName(Jwt.verifyToken(token));
+        if(user.getRole() == 1){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }

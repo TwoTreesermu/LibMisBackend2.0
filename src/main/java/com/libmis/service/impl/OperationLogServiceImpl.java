@@ -26,8 +26,8 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
 
     @Override
     public void saveOperationLog(String token, String operationType){
-        Map<String, Object> userMap = Jwt.verifyToken(token);
-        User user = userService.getByUserName((String) userMap.get("userName"));
+        String userName= Jwt.verifyToken(token);
+        User user = userService.getByUserName(userName);
         operationLog.setUserId(user.getUserId());
         operationLog.setOperation(operationType);
         Date date = new Date();
