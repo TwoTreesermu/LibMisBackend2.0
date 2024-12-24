@@ -19,13 +19,15 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book>
         implements BookService {
     @Autowired
     BookStorageService bookStorageService;
+    @Autowired
+    BookStorageMapper bookStorageMapper;
+
     @Override
-    public boolean checkBookStorage(Book book){
-        int bookId = book.getBookId();
-        BookStorage bs = bookStorageService.getById(bookId);
-        if (bs.getRealQuantity()> 0){
-            bs.setRealQuantity(bs.getRealQuantity()-1);
-            bookStorageService.updateById(bs);
+    public boolean checkBookStorage(int bookId, int userId){
+        BookStorage bookStorage = bookStorageService.getById(bookId);
+        if (bookStorage.getRealQuantity()> 0 && bookStorageMapper.checkBorrowed(bookId, userId) == null){
+            bookStorage.setRealQuantity(bookStorage.getRealQuantity()-1);
+            bookStorageService.updateById(bookStorage);
             return true;
         }
         else{

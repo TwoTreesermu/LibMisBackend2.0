@@ -143,7 +143,7 @@ public class UserController {
     public Result<?> userListByPage(@RequestParam(defaultValue = "1") Integer pageNum,
                                     @RequestParam(defaultValue = "5")Integer pageSize) {
         try{
-        return pageQuery.pageQuery("person", pageNum, pageSize, null, null);}
+        return pageQuery.pageQuery("person", pageNum, pageSize, "user_name", null);}
         catch(Exception e){
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
@@ -163,7 +163,7 @@ public class UserController {
                                               @RequestParam(defaultValue = "5")Integer pageSize,
                                               @RequestParam(defaultValue = "")String search) {
         try{
-        return pageQuery.pageQuery(type, pageNum, pageSize, search, null);}
+        return pageQuery.pageQuery(type, pageNum, pageSize, "user_name", null);}
         catch(Exception e){
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());

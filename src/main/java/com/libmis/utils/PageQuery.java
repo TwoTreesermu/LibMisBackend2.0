@@ -63,7 +63,8 @@ public class PageQuery {
             // 2. 条件搜索
             if (StringUtils.hasText(filter)) {
                 try{queryWrapper.like(filter, keyWord);}
-                catch (Exception e){}
+                catch (Exception e){
+                }
             }
             // 3. 填page
             Page<BorrowRecord> page = borrowRecordService.page(new Page<>(pageNum, pageSize), queryWrapper);

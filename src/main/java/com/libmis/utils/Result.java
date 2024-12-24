@@ -69,6 +69,13 @@ public class Result<T> {
         result.setMsg(msg);
         return result;
     }
+    public static Result success(String msg, Object data) {
+        Result result = new Result<>();
+        result.setCode("200");
+        result.setMsg(msg);
+        result.setData(data);
+        return result;
+    }
     // 编写方法-返回需要的Result对象-表示失败的Result
     public static Result error(String code, String msg) {
         Result result = new Result<>();
