@@ -170,6 +170,11 @@ public class UserController {
         }
     }
 
+    /**
+     * 注册
+     * @param user
+     * @return
+     */
     @PostMapping("/register")
     public Result register(@RequestBody User user) {
         try{
@@ -193,6 +198,11 @@ public class UserController {
 
     }
 
+    /**
+     * 登录
+     * @param user
+     * @return
+     */
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
         try {
@@ -224,50 +234,6 @@ public class UserController {
 
     }
 
-    /**
-     * 查看自己借阅了的书籍
-     * 这里用的分页查询，暂不知道要不要接收前端传过来的pageNum, pageSize
-     */
-    @GetMapping("/borrowRecord")
-    public Result<?> borrowRecord(@RequestHeader("Authorization") String token) {
-        try {
-            String userName = Jwt.verifyToken(token);
-            int userId = userService.getByUserName(userName).getUserId();
-            return pageQuery.pageQuery("borrowRecord", 1, 10, "id", userId);
-        }
-        catch(Exception e){
-            log.error(e.getMessage());
-            return Result.error("501", e.getMessage());
-        }
-    }
-
-    /**
-     * 延期归还
-     * 应该是用户点开自己的借阅记录，然后还没有还的书边上有一个这个功能按钮
-     * 理论上续借的次数是有限的，但是这里先不纠结。
-     * 注意前端是否需要设计一下，已经归还的书籍就不该显示续借的按钮。
-     * @param book
-     * @return
-     */
-    @PostMapping("/borrowRecord/extendLoan")
-    public Result<?> extendLoan(@RequestBody Book book) {
-        try {
-            // 修改record里的时间就可以了
-            int bookId = book.getBookId();
-            BorrowRecord bookRecord = borrowRecordService.getById(bookId);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(bookRecord.getReturnDate());
-            calendar.add(Calendar.DAY_OF_MONTH, 30);
-            bookRecord.setReturnDate(calendar.getTime());
-//            String operate = "extend loan "+ bookId;
-//            operationLogService.saveOperationLog(token, operate);
-            return Result.success("还书时间更新为：" + bookRecord.getReturnDate());
-        }
-        catch(Exception e){
-            log.error(e.getMessage());
-            return Result.error("501", e.getMessage());
-        }
-    }
 
     /**
      * 注销

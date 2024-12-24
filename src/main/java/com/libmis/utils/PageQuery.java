@@ -23,6 +23,10 @@ public class PageQuery {
     private BorrowRecordService borrowRecordService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private ReservationRecordService reservationRecordService;
+    @Autowired
+    private NotificationService notificationService;
 
     public Result<?> pageQuery(String type, int pageNum, int pageSize, String filter, Object keyWord) {
         if(type.equals("book")) {
@@ -80,6 +84,27 @@ public class PageQuery {
             Page<Comment> page = commentService.page(new Page<>(pageNum, pageSize), queryWrapper);
             return Result.success(page);
         }
+        else if (type.equals("reservationRecord")) {
+            QueryWrapper<ReservationRecord> queryWrapper = Wrappers.query();
+            // 2. 条件搜索
+            if (StringUtils.hasText(filter)) {
+                queryWrapper.like(filter, keyWord);
+            }
+            // 3. 填page
+            Page<ReservationRecord> page = reservationRecordService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            return Result.success(page);
+        }
+        else if (type.equals("notification")) {
+            QueryWrapper<Notification> queryWrapper = Wrappers.query();
+            // 2. 条件搜索
+            if (StringUtils.hasText(filter)) {
+                queryWrapper.like(filter, keyWord);
+            }
+            // 3. 填page
+            Page<Notification> page = notificationService.page(new Page<>(pageNum, pageSize), queryWrapper);
+            return Result.success(page);
+        }
+
         else{
             return Result.error("500", "实体类型错误");
         }

@@ -5,11 +5,14 @@ import com.libmis.entity.Book;
 import com.libmis.entity.ReservationRecord;
 import com.libmis.service.BookService;
 import com.libmis.service.ReservationRecordService;
+import com.libmis.service.UserService;
+import com.libmis.utils.Jwt;
 import com.libmis.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.libmis.utils.PageQuery;
 @Slf4j
 @RestController
 @RequestMapping("/books")
@@ -19,6 +22,11 @@ public class ReservationRecordController {
    private ReservationRecordService reservationRecordService;
    @Autowired
    private BookService bookService;
+   @Autowired
+   private UserService userService;
+   @Autowired
+   private PageQuery pageQuery;
+
 
     /**
      * 预约书籍
@@ -71,5 +79,22 @@ public class ReservationRecordController {
         }
     }
 
+    /**
+     * 查询用户的预约记录
+     * @param token
+     * @return
+     */
+    @GetMapping("/getReservationRecord")
+    public Result<?> getReservationRecord(@RequestHeader("Authorization") String token) {
+        try {
+            String userName = Jwt.verifyToken(token);
+            int userId = userService.getByUserName(userName).getUserId();
+            return pageQuery.pageQuery("reservationRecord", 1, 10, "id", userId);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
+    }
 
 }

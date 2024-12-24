@@ -21,8 +21,8 @@ public class NotificationController {
     private PageQuery pageQuery;
     
     // 查询通知表
-    @GetMapping("/categoryList")
-    public Result<?> categoryList() {
+    @GetMapping("/notificationList")
+    public Result<?> notificationList() {
         try {
             List<Notification> categoriesList = notificationService.list();
             return Result.success(categoriesList);
@@ -56,10 +56,10 @@ public class NotificationController {
         }
     }
 
-    @DeleteMapping("/del/{categoryId}")
-    public Result<?> del(@PathVariable int categoryId) {
+    @DeleteMapping("/del/{notificationId}")
+    public Result<?> del(@PathVariable int notificationId) {
         try{
-            notificationService.removeById(categoryId);
+            notificationService.removeById(notificationId);
             return Result.success("删除通知成功了喵。");
         }catch (Exception e) {
             log.error(e.getMessage());
@@ -67,16 +67,29 @@ public class NotificationController {
         }
     }
 
-    @GetMapping("/find/{categoryId}")
-    public Result<?> find(@PathVariable Integer categoryId) {
+    @GetMapping("/find/{notificationId}")
+    public Result<?> find(@PathVariable Integer notificationId) {
         try{
-            System.out.println("checkPoint1");
-            return Result.success(notificationService.getById(categoryId));
+            return Result.success(notificationService.getById(notificationId));
         }catch (Exception e) {
-            System.out.println("checkPoint2");
             log.error(e.getMessage());
             return Result.error("501", e.getMessage());
         }
     }
+
+    @GetMapping("/BySearchPage")
+    public Result<?> notificationListByConditionPage(@RequestParam(defaultValue = "notification")String type,
+                                              @RequestParam(defaultValue = "1")Integer pageNum,
+                                              @RequestParam(defaultValue = "5")Integer pageSize,
+                                              @RequestParam(defaultValue = "")String search) {
+        try {
+            return pageQuery.pageQuery(type, pageNum, pageSize, "title", search);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return Result.error("501", e.getMessage());
+        }
+    }
+
 }
 
